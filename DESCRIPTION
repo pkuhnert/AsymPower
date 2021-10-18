@@ -1,0 +1,23 @@
+Package: AsymPower
+Type: Package
+Title: Sample Size and Power Calculations for Detecting Trends from Counts
+Version: 0.1.0
+Authors@R: c(
+    person("Petra", "Kuhnert", email = "Petra.Kuhnert@data61.csiro.au", role = c("aut", "cre"), comment = c(ORCID = "0000-0001-9070-0091"))
+    )
+Depends: 
+    R (>= 4.1.0)
+Imports:
+    ggplot2,
+    stats
+Suggests: 
+    knitr, rmarkdown
+Description: 
+    This tool calculates sample size and power for a range of scenarios 
+    where counts of species have been recorded. Likelihoods considered 
+    are bernoulli, zero-inflated biomial (rare species), Poisson, 
+    negative Binomial and zero-inflated negative Binomial (common species). 
+License: GPL
+VignetteBuilder: knitr
+Encoding: UTF-8
+RoxygenNote: 7.1.2

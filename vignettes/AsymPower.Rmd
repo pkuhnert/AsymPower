@@ -1,0 +1,571 @@
+---
+title: "Asymptotic Power Calculations for Count Data"
+author: "Petra Kuhnert"
+date: "`r Sys.Date()`"
+output: rmarkdown::html_vignette
+bibliography: references.bib 
+vignette: >
+  %\VignetteIndexEntry{Asymptotic Power Calculations for Count Data}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+```{r setup, include = FALSE}
+knitr::opts_chunk$set(
+  collapse = TRUE,
+  comment = "#>"
+)
+```
+
+This information has been reproduced from the appendix of the 2011 publication (@Kuhnert11) that appears here: [Kuhnert et al. (2011)](https://www.sciencedirect.com/science/article/pii/S0165783610002997?via%3Dihub)
+
+
+## Asymptotic Power Calculations for Rare Species
+
+
+Two probability distribution functions are considered for rare species. The
+first is the Bernoulli density which is typically used to model the
+probability of presence of the species.  The second is the
+zero-inflated Binomial (ZIB) density, which allows estimation of a
+detection parameter, $q$ that represents the probability of detecting
+or capturing the species in $m$ repeat visits.  If $q=1$, the ZIB
+model defaults to the usual Bernoulli model.
+
+Since any captures for a rare species are likely to be reported as a
+presence rather than a count these models seem appropriate for a power
+analysis investigation.
+
+The method proposed by @Self92 is used to derive the expression
+for $n$.  It is based on the assumption that asymptotically,
+$2(l(y;\hat{\theta})-l(y;\hat{\theta_0}))$ is distributed as
+$\chi_C^2(x|\eta)$, where $\eta$ represents the non-centrality
+parameter and $C$ is the degrees of freedom.  An approximation for $\eta$ is shown below in the following expression:
+$$
+\eta = 2\times E_{\tilde{\theta}}\{l(y;\tilde{\theta}_a)-l(y;\tilde{\theta}_0)\}
+$$
+where $\tilde{\theta}$ and $\tilde{\theta}_0$ represents the
+alternative and null hypothesis values of $\theta$ respectively for
+large $n$ and $\theta$ is the parameter of interest.
+
+For rare species, the hypothesis under investigation is
+$$
+\begin{aligned}
+H_0: p_0 &= \pi \\
+H_a: p_a &= \pi\gamma^i \hspace{0.2in} i=0,1,\ldots,T.
+\end{aligned}
+$$
+
+In this expression, $\theta$ is replaced by $p$, the probability of
+presence of the species and $\gamma$ represents the probability of
+decline, indexed by year $i$.  So when $i=0$, $p_0$ and $p_a$ are both
+equal to $\pi$.
+
+### Bernoulli Density
+
+The Bernoulli density for the presence or absence of a species can be written as
+$$
+f(y;p) = p^y(1-p)^{1-y} \hspace{0.2in} y=0,1,\ldots
+$$
+
+The log-likelihood for a single observation $i$ is
+$$
+l(y_i;p_i) = y_i\log(p_i) + (1-y_i)\log(1-p_i)
+$$
+The expected value of the log-likelihood of $p_a$, the alternative hypothesis of $p$ over $p_0$ is given by the Bernoulli density at $p_a$ times the log-likelihood at $p_0$.
+$$
+\begin{aligned}
+E_{p_a}[l(y;p_0)] &= \sum_{y=0}^{\infty} f(y;p_a)l(y;p_0) \\
+ &= \sum_{y=0}^{\infty} [y\log(p_0) + (1-y)\log(1-p_0)]f(y;p_a) \\
+ &= \log(p_0)\sum_{y=0}^{\infty} y f(y;p_a) + \log(1-p_0)\sum_{y=0}^{\infty} f(y;p_a) - \log(1-p_0)\sum_{y=0}^{\infty} y f(y;p_a)  \\
+\end{aligned}
+$$
+By noting that $\sum_{y=0}^{\infty} y f(y;p_a) = p_a$ and
+$\sum_{y=0}^{\infty} f(y;p_a)=1$, we can collapse the above expression to the following
+
+$$
+E_{p_a}[l(y;p_0)] = p_a \log(p_0) + (1-p_a)\log(1-p_0)
+$$
+
+The non-centrality parameter can therefore be expressed as
+$$
+\begin{aligned}
+\eta &= 2\{E_{p_a}[l(y;p_a)]-E_{p_a}[l(y;p_0)]\}n_{\tiny\mbox{B}} \\
+  &= 2\{p_a \log(p_a) + (1-p_a)\log(1-p_a) - p_a \log(p_0) - (1-p_a)\log(1-p_0)\}n_{\tiny\mbox{B}} \\
+  &= 2\{p_a(\log(p_a)-\log p_0) + [1-p_a]\log(1-p_a) + [p_a-1]\log(1-p_0)\}n_{\tiny\mbox{B}}
+\end{aligned}
+$$
+Substituting the expression for $p_0$ and $p_a$ from
+Equation~\ref{eq:hyp} into the above expression for $\eta$ yields:
+$$
+2\{\pi\gamma^i(\log(\pi\gamma^i)-\log \pi) + [1-\pi\gamma^i]\log(1-\pi\gamma^i) +
+[\pi\gamma^i-1]\log(1-\pi)\}n_{\tiny\mbox{B}} \hspace{0.2in} i=0,\ldots,T.
+$$
+The non-centrality parameter, $\eta$ can be appproximated using the
+percentage points of a standard Normal variate as outlined by
+@Rochon89 and shown below.
+$$
+\eta(\alpha,\beta) = (z_{1-\alpha/2}+z_{1-\beta})^2
+$$
+Substituting this expression for $\eta$ into Equation~\ref{eq:eta} and rearranging terms gives an expression for $n_{\tiny\mbox{B}}$
+$$
+n_{\tiny\mbox{B}} = \eta(\alpha,\beta)/\frac{1}{T+1}\sum_{i=0}^T 2\{\pi\gamma^ii\log(\gamma) + \log(1-\pi\gamma^i)[1-\pi\gamma^i] +
+\log(1-\pi)[\pi\gamma^i-1]\}
+$$
+
+### Zero-Inflated Binomial Density
+
+The zero-inflated Binomial (ZIB) density which is used to model the number of
+times $y$ that a species has been captured in $m$ visits with
+detection probability $q$ can be written as two components.  The first
+component models the probability that the species was observed $y$
+times, conditional on it being present, while the second component
+models the probability that the species was not there plus the
+probability that it was there but not observed in $m$ visits.  In both
+of these expressions, $p$ represents the probability that the species
+was present.  The ZIB probability density function is shown below.
+$$
+f(y;p,q) = \left\{ \begin{array}{ll}
+    p(\begin{array}{c}
+          m \\
+          y
+      \end{array})
+     q^y(1-q)^{m-y} & \mbox{if } y > 0 \\
+    (1-p) + p(1-q)^m & \mbox{if } y=0
+    \end{array}
+    \right.
+$$
+
+The log-likelihood for a single observation in each component is
+$$
+l(y_i;p_i,q) = \left\{ \begin{array}{ll}
+    \log(p_i) + \log(m!) - \log(y_i!(m-y_i)!) + y_i \log(q) + (m-y_i)\log(1-q) & \mbox{if } y_i > 0 \\
+    \log((1-p_i) + p_i(1-q)^m & \mbox{if } y_i=0
+    \end{array}
+    \right.
+$$
+
+The expected value of the log-likelihood of $p_a$, the alternative
+hypothesis of $p$ over $p_0$ is given by the ZIB density at $p_a$
+times the log-likelihood at $p_0$.
+$$
+\begin{aligned}
+E_{p_a}[l(y;p_0)] &= \sum_{y=0}^{\infty} f(y;p_a)l(y;p_0) \\
+ &= \log(1-p_0 + p_0(1-q)^m)f(y;p_a,q) + \\
+ &  \sum_{y=1}^{\infty} \{\log(p_0) + \log(m!) - \log(y!(m-y)!) + y \log(q) + (m-y)\log(1-q)\}f(y;p_a,q) \\
+ &= (1-p_a + p_a(1-q)^m)\log(1-p_0 + p_0(1-q)^m) + \log(p_0)\sum_{y=1}^{\infty}f(y;p_a,q) + \\
+  &  \log(m!)\sum_{y=1}^{\infty}f(y;p_a,q) - \sum_{y=1}^{\infty}\log(y!(m-y)!)f(y;p_a,q) + \log(q)\sum_{y=1}^{\infty}y f(y;p_a,q) + \\
+  &  \log(1-q) \sum_{y=1}^{\infty}(m-y) f(y;p_a,q)
+  \end{aligned}
+$$
+By noting that
+$$
+\begin{align}
+\sum_{y=1}^{\infty}f(y;p_a,q) &= 1-f(y_0;p_a,q) \\
+     &= 1-1+p_a-p_a(1-q)^m = p_a(1-(1-q)^m), \\
+\sum_{y=1}^{\infty}yf(y;p_a,q) &= \sum_{y=0}^{\infty}yf(y;p_a,q) = p_a, \\
+\sum_{y=1}^{\infty}\log(y!(m-y)!)f(y;p_a,q) &= \sum_{y=0}^{\infty}\log(y!(m-y)!)f(y;p_a,q) \\
+      &= K_1\sum_{y=0}^{\infty}f(y;p_a,q) = K_1 \mbox{ (constant)}, \\
+\mbox{and }\sum_{y=1}^{\infty}(m-y)f(y;p_a,q) &\cong \sum_{y=0}^{\infty}(m-y)f(y;p_a,q) = K_2
+\end{align}
+$$
+we can produce the following expression for $E_{p_a}[l(y;p_0)]$
+$$
+\begin{align}
+E_{p_a}[l(y;p_0)] &= (1-p_a + p_a(1-q)^m)\log(1-p_0 + p_0(1-q)^m) + p_a(1-(1-q)^m)\log(p_0) + \\
+  &  p_a(1-(1-q)^m)\log(m!) - K_1+p_a \log(q) + K_2
+\end{align}
+$$
+
+Then the non-centrality parameter can be written as
+$$
+\begin{align}
+\eta &= 2\{[1-p_a+p_a(1-q)^m] \log[1-p_a+p_a(1-q)^m] + p_a(1-(1-q)^m)\log(p_a) + \\
+     & p_a(1-(1-q)^m)\log(m!) - K_1 + p_a\log(q) + K_2 - (1-p_a+p_a(1-q)^m)\log(1-p_0+p_0(1-q)^m) - \\
+     & p_a(1-(1-q)^m)\log(p_0) - p_a(1-(1-q)^m)\log(m!) + K_1 - p_a\log(q) - K_2\}n \\
+     &= 2\{ (1-p_a+p_a(1-q)^m)[\log(1-p_a+p_a(1-q)^m)-\log(1-p_0+p_0(1-q)^m)] + \\
+     & p_a(1-(1-q)^m)\log(\frac{p_a}{p_0})\}n_{\tiny\mbox{ZIB}}
+\end{align}
+$$
+Substituting the expression for $p_0$ adn $p_a$ from
+Equation~\ref{eq:hyp} to the above expression for $\eta$ yields
+$$
+\begin{align}
+& 2\{[1-\pi\gamma^i+\pi\gamma^i(1-q)^m][\log(1-\pi\gamma^i+\pi\gamma^i(1-q)^m)- \log(1-\pi+\pi(1-q)^m)] + \\
+ &  \pi\gamma^i(1-(1-q)^m)\log(\gamma^i)\}n_{\tiny\mbox{ZIB}} \hspace{0.2in} i=0,\ldots, T.
+\end{align}
+$$
+An expression for $n_ZIB$ can be obtained in a similar manner to that
+obtained for the Bernoulli density using the approximation for the
+non-centrality parameter shown in the previous section.
+$$
+\begin{align}
+n_{\tiny\mbox{ZIB}} &= \eta(\alpha,\beta)/\frac{1}{T+1}\sum_{i=0}^T 2\{(1-\pi\gamma^i+\pi\gamma^i(1-q)^m)(\log[1-\pi\gamma^i+\pi\gamma^i(1-q)^m] - \\
+& \log[1-\pi+\pi(1-q)^m]) + \pi\gamma^i(1-(1-q)^m)\log(\gamma^i)
+\end{align}
+$$
+Note, if $q=1$, the above expressions reduces to the expression produced for the bernoulli density.
+
+## Asymptotic Power Calculations for Common Species
+
+Four probability distribution functions are considered for common
+species. The first is the Poisson density which is typically used to
+model count data.  The second is the negative-binomial density which
+contains an overdispersion parameter to take into account large
+fluctuations in counts.  The two remaining models are zero-inflated
+versions of the Poisson (ZIP) and Negative Binomial (ZINb).  These are
+represented through mixture distributions, where the first component
+of the mixture is represented by a point mass at zero to take into
+account structural zeros (species not observed because the
+habitat was not suitable).  The second mixture component accommodates the
+random zeros (species not present due to random variation, sampling or
+observer error) through either the Poisson or Negative Binomial
+distributions.  The probability that an observation falls into one of
+these components is represented by the parameter, $p$.  If $p=1$, the
+ZIP and ZINb models default to the Poisson and Negative Binomial
+densities respectively.
+
+We adopt the method proposed for rare speies to derive the expression
+for $n$.  This method is based on the assumption that asymptotically,
+$2(l(y;\hat{\theta})-l(y;\hat{\theta_0}))$ is distributed as
+$\chi_C^2(x|\eta)$, where $\eta$ represents the non-centrality
+parameter and $C$ is the degrees of freedom.  An approximation for $\eta$ is shown below in the following expression:
+$$
+\eta = 2\times E_{\tilde{\theta}}\{l(y;\tilde{\theta}_a)-l(y;\tilde{\theta}_0)\}
+$$
+where $\tilde{\theta}$ and $\tilde{\theta}_0$ represents the
+alternative and null hypothesis values of $\theta$ respectively for
+large $n$ and $\theta$ is the parameter of interest.
+
+For common species, the hypothesis under investigation is
+$$
+\begin{align}
+H_0: \mu_0 &= \lambda \\
+H_a: \mu_a &= \lambda\gamma^i \hspace{0.2in} i=0,1,\ldots,T.
+\end{align}
+$$
+In this expression, $\theta$ is replaced by $\mu$, the mean count of
+the species and $\gamma$ represents the probability of decline,
+indexed by year $i$.  So when $i=0$, $\mu_0$ and $\mu_a$ are both
+equal to $\lambda$.  Expressions for $n$ based on all for
+distributions are outlined in the following sections.
+
+### Poisson Density
+
+The Poisson density for the count of a species, $y$ can be written as
+$$
+f(y;\mu) = \frac{\mu^y}{y!}\exp(-\mu) \hspace{0.2in} y=0,1,\ldots
+$$
+The log-likelihood for a single observation $i$ is
+$$
+l(y_i;\mu_i) = y_i\log(\mu_i) -\log(y_i!)-\mu_i
+$$
+The expected value of the log-likelihood of $\mu_a$, the alternative hypothesis of $\mu$ over $\mu_0$ is given by the Poisson density at $\mu_a$ times the log-likelihood at $\mu_0$.
+$$
+\begin{align}
+E_{\mu_a}[l(y;\mu_0)] &= \sum_{y=0}^{\infty} f(y;\mu_a)l(y;\mu_0) \\
+ &= \sum_{y=0}^{\infty} [y\log(\mu_0) -\log(y!)-\mu_0]f(y;\mu_a) \\
+ &= \log(\mu_0)\sum_{y=0}^{\infty} y f(y;\mu_a)-\sum_{y=0}^{\infty}\log(y!)f(y;\mu_a) - \mu_0\sum_{y=0}^{\infty}f(y;\mu_a)
+ \end{align}
+$$
+By noting that
+$$
+\begin{align}
+\sum_{y=0}^{\infty} y f(y;\mu_a) &= \mu_a,\\
+\sum_{y=0}^{\infty} log(y!) f(y;\mu_a) &= K \mbox{ (constant)}, \\
+\mbox{and }\sum_{y=0}^{\infty} f(y;\mu_a)&=1
+\end{align}
+$$
+we can collapse the above expression to the following
+$$
+E_{\mu_a}[l(y;\mu_0)] = \mu_a \log(\mu_0)  - K - \mu_0
+$$
+The non-centrality parameter can therefore be expressed as
+$$
+\begin{align}
+\eta &= 2\{E_{\mu_a}[l(y;\mu_a)]-E_{\mu_a}[l(y;\mu_0)]\}n_{\tiny\mbox{P}} \\
+  &= 2\{\mu_a \log(\mu_a) -K-\mu_a-\mu_a\log(\mu_0)+K+\mu_0\}n_{\tiny\mbox{P}} \\
+  &= 2\{\mu_a\log(\frac{\mu_a}{\mu_0})-\mu_a+\mu_0\}n_{\tiny\mbox{P}}
+\end{align}
+$$
+Substituting the expression for $\mu_0$ and $\mu_a$ from
+Equation~\ref{eq:hyp2} into the above expression for $\eta$ yields:
+$$
+\begin{align}
+\eta &= 2\{\lambda\gamma^i(\log(\lambda\gamma^i)-\log \lambda) -\lambda\gamma^i + \lambda\}n \hspace{0.2in} i=0,\ldots,T. \\
+ &=  2\{\lambda\gamma^i\log\gamma^i -\lambda\gamma^i + \lambda\}n_{\tiny\mbox{P}} \hspace{0.2in} i=0,\ldots,T.
+\end{align}
+$$
+The non-centrality parameter, $\eta$ can be appproximated using the
+percentage points of a standard Normal variate as outlined by
+@Rochon89 and shown below.
+$$
+\eta(\alpha,\beta) = (z_{1-\alpha/2}+z_{1-\beta})^2
+$$
+Substituting this expression for $\eta$ into Equation~\ref{eq:eta2} gives an expression for $n_{\tiny\mbox{P}}$
+$$
+n_{\tiny\mbox{P}} = \eta(\alpha,\beta)/\frac{1}{T+1}\sum_{i=0}^T 2\{\lambda\gamma^i\log\gamma^i -\lambda\gamma^i + \lambda\}
+$$
+
+### Negative Binomial Density
+
+The Negative Binomial density for the count of a species, $y$ and overdispersion parameter, $\phi$ can be written as
+$$
+f(y;\mu,\phi) = \frac{\Gamma(\phi+y)}{\Gamma(\phi)\Gamma(y+1)} (\frac{\phi}{\mu+\phi})^\phi (\frac{\mu}{\mu+\phi})^y  \hspace{0.2in} y=0,1,\ldots
+$$
+
+The log-likelihood for a single observation $i$ is
+$$
+\begin{align}
+l(y_i;\mu_i,\phi) &= \log(\Gamma(\phi+y))-\log(\Gamma(\phi))-\log(\Gamma(y+1)) +  \phi\log\phi -\phi\log(\mu+\phi) + \\
+ &  y\log\mu - y\log(\mu+\phi)
+\end{align}
+$$
+
+The expected value of the log-likelihood of $\mu_a$, the alternative
+hypothesis of $\mu$ over $\mu_0$ is given by the Negative Binomial density at
+$\mu_a$ times the log-likelihood at $\mu_0$.
+$$
+\begin{align}
+E_{\mu_a}[l(y;\mu_0,\phi)] &= \sum_{y=0}^{\infty} f(y;\mu_a,\phi)l(y;\mu_0,\phi) \\
+ &= \sum_{y=0}^{\infty} [\log(\Gamma(\phi+y))-\log(\Gamma(\phi))-\log(\Gamma(y+1)) + \phi\log \phi - \\
+  &  \phi\log(\mu_0+\phi)+y\log \mu_0 -y\log(\mu_0+\phi)]f(y;\mu_a,\phi) \\
+ &= \sum_{y=0}^{\infty} \log(\Gamma(\phi+y) f(y;\mu_a,\phi)-\log(\Gamma(\phi))\sum_{y=0}^{\infty}f(y;\mu_a,\phi)- \\
+ &  \sum_{y=0}^{\infty}\log(\Gamma(y+1))f(y;\mu_a,\phi + \phi\log\phi \sum_{y=0}^{\infty} f(y;\mu_a,\phi) - \\
+ &  \phi\log(\mu_0+\phi)\sum_{y=0}^{\infty} f(y;\mu_a,\phi) + \log \mu_0 \sum_{y=0}^{\infty} yf(y;\mu_a,\phi) - \\
+ & \log(\mu_0+\phi)\sum_{y=0}^{\infty} yf(y;\mu_a,\phi)
+\end{align}
+$$
+By noting that
+$$
+\begin{align}
+\sum_{y=0}^{\infty} y f(y;\mu_a,\phi) &= \mu_a, \\
+\sum_{y=0}^{\infty} (log(\Gamma(\phi+y)-\Gamma(y+1)) f(y;\mu_a,\phi) &= K \mbox{ (constant)}, \\
+\mbox{and } \sum_{y=0}^{\infty} f(y;\mu_a,\phi)&= 1
+\end{align}
+$$
+ we can collapse the above expression to the following
+$$
+\begin{align}
+E_{\mu_a}[l(y;\mu_0,\phi)] &= K-\log(\Gamma(\phi)) + \phi\log \phi -\phi\log(\mu_0+\phi) + \\
+  &  \mu_a\log \mu_0 - \mu_a\log(\mu_0+\phi)
+\end{align}
+$$
+The non-centrality parameter can therefore be expressed as
+$$
+\begin{align}
+\eta &= 2\{E_{\mu_a}[l(y;\mu_a,\phi)]-E_{\mu_a}[l(y;\mu_0,\phi)]\}n_{\tiny\mbox{NB}} \\
+  &= 2\{ K-\log\Gamma(\phi)+\phi\log\phi-\phi\log(\mu_a+\phi)+\mu_a\log \mu_a - \\
+  &  \mu_a\log(\mu_a+\phi) - K +\log\Gamma(\phi)-\phi\log\phi+\phi\log(\mu_0+\phi) - \\
+  &  \mu_a\log\mu_0 + \mu_a\log(\mu_0+\phi) \}n_{\tiny\mbox{NB}}  \\
+  &= 2\{ \phi\log(\frac{\mu_0+\phi}{\mu_a+\phi}) + \mu_a\log(\frac{\mu_a}{\mu_0}) + \mu_a\log(\frac{\mu_0+\phi}{\mu_a+\phi})\}n_{\tiny\mbox{NB}}
+\end{align}
+$$
+Substituting the expression for $\mu_0$ and $\mu_a$ from
+Equation~\ref{eq:hyp2} into the above expression for $\eta$ yields:
+$$
+\begin{align}
+\eta &= 2\{\phi\log(\frac{\lambda+\phi}{\lambda\gamma^i+\phi}) + \lambda\gamma^i\log(\frac{\lambda\gamma^i}{\lambda}) + \lambda\gamma^i\log(\frac{\lambda+\phi}{\lambda\gamma^i+\phi})\}n_{\tiny\mbox{NB}} \hspace{0.2in} i=0,\ldots,T. \\
+ &= 2\{\lambda\gamma^i\log(\gamma^i) + \log(\frac{\lambda+\phi}{\lambda\gamma^i+\phi})(\phi+\lambda\gamma^i)\}n_{\tiny\mbox{NB}} \hspace{0.2in} i=0,\ldots,T.
+\end{align}
+$$
+The non-centrality parameter, $\eta$ can be appproximated using the
+percentage points of a standard Normal variate as outlined by
+@Rochon89 and shown below.
+$$
+\eta(\alpha,\beta) = (z_{1-\alpha/2}+z_{1-\beta})^2
+$$
+Substituting this expression for $\eta$ into Equation~\ref{eq:eta2nb} gives an expression for $n_{\tiny\mbox{NB}}$
+$$
+n_{\tiny\mbox{NB}} = \eta(\alpha,\beta)/\frac{1}{T+1}\sum_{i=0}^T 2\{\lambda\gamma^i\log(\gamma^i) + \log(\frac{\lambda+\phi}{\lambda\gamma^i+\phi})(\phi+\lambda\gamma^i) \}
+$$
+### Zero-Inflated Poisson Density
+
+The Zero-inflated Poisson (ZIP) density for the count of a species can be written as a mixture defined by two components
+$$
+f(y;\mu,p) = \left\{ \begin{array}{ll}
+                          1-p+p\exp(-\mu) & \mbox{if }y=0 \\
+                          p\mu^y\exp(-\mu)/y! & \mbox{if }y>0
+                     \end{array} \right.
+$$
+
+The log-likelihood for a single observation $i$ is
+$$
+l(y_i;\mu_i,p) = \left\{ \begin{array}{ll}
+                          \log(1-p+p\exp(-\mu_i)) & \mbox{if }y_i=0 \\
+                          \log p + y_i\log \mu_i - \mu_i - \log(y!) & \mbox{if  }y_i>0
+                    \end{array} \right.
+$$
+The expected value of the log-likelihood of $\mu_a$, the alternative
+hypothesis of $\mu$ over $\mu_0$ is given by the ZIP density at
+$\mu_a$ times the log-likelihood at $\mu_0$.
+$$
+\begin{align}
+E_{\mu_a}[l(y;\mu_0,p)] &= \sum_{y=0}^{\infty} f(y;\mu_a,p)l(y;\mu_0,p) \\
+ &= (1-p+p\exp(-\mu_a))\log(1-p+p\exp(-\mu_0)) + \\
+ &  \sum_{y=1}^{\infty} [\log p + y\log\mu_0 - \mu_0-\log y!]f(y;\mu_a,p) \\
+ &= (1-p+p\exp(-\mu_a))\log(1-p+p\exp(-\mu_0)) + \log p \sum_{y=1}^{\infty} f(y;\mu_a,p) + \\
+ &  \log \mu_0 \sum_{y=1}^{\infty} yf(y;\mu_a,p) - \mu_0 \sum_{y=1}^{\infty} f(y;\mu_a,p) - \sum_{y=1}^{\infty} \log(y!)f(y;\mu_a,p)
+ \end{align}
+$$
+By noting that
+$$
+\begin{align}
+\sum_{y=1}^{\infty} f(y;\mu_a,p) &= 1-f(y_0;\mu_a,p) = p(1-\exp(-\mu_a)), \\
+\sum_{y=1}^{\infty} y f(y;\mu_a) &= \sum_{y=0}^{\infty} y f(y;\mu_a,p) = \mu_a, \\
+\mbox{and }\sum_{y=1}^{\infty} log(y!)f(y;\mu_a,p)&= K\sum_{y=0}^{\infty} f(y;\mu_a,p)=K \mbox{ (constant)}
+\end{align}
+$$
+we can collapse the above expression to
+$$
+\begin{align}
+E_{\mu_a}[l(y;\mu_0,p)] &= (1-p+p\exp(-\mu_a))\log(1-p+p\exp(-\mu_0)) + p(1-\exp(-\mu_a))\log p + \\
+  &  \mu_a \log(\mu_0) - \mu_0p(1-\exp(-\mu_a))-K
+\end{align}
+$$
+The non-centrality parameter can therefore be expressed as
+$$
+\begin{align}
+\eta &= 2\{E_{\mu_a}[l(y;\mu_a,p)]-E_{\mu_a}[l(y;\mu_0,p)]\}n_{\tiny\mbox{ZIP}} \\
+  &= 2\{(1-p+p\exp(-\mu_a))\log(1-p+p\exp(-\mu_a)) + p(1-\exp(-\mu_a))\log p + \mu_a \log(\mu_a) - \\
+  &  \mu_ap(1-\exp(-\mu_a))-K - (1-p+p\exp(-\mu_a))\log(1-p+p\exp(-\mu_0)) - p(1-\exp(-\mu_a))\log p - \\
+  &  \mu_a \log(\mu_0) + \mu_0p(1-\exp(-\mu_a))+K \}n_{\tiny\mbox{ZIP}} \\
+ &= 2\{(1-p+p\exp(-\mu_a))[\log(1-p+p\exp(-\mu_a))-\log(1-p+p\exp(-\mu_0))] + \mu_a\log\frac{\mu_a}{\mu_0} + \\
+ &  p(1-\exp(-\mu_a))(\mu_0-\mu_a) \}n_{\tiny\mbox{ZIP}}
+\end{align}
+$$
+Substituting the expression for $\mu_0$ and $\mu_a$ from
+Equation~\ref{eq:hyp2} into the above expression for $\eta$ yields:
+$$
+\begin{align}
+\eta &= 2\{(1-p+p\exp(-\lambda\gamma^i))[\log(1-p+p\exp(-\lambda\gamma^i))-\log(1-p+p\exp(-\lambda))] + \\
+     & \lambda\gamma^i\log\frac{\lambda\gamma^i}{\lambda} + p(1-\exp(-\lambda\gamma^i))(\lambda-\lambda\gamma^i)\}n_{\tiny\mbox{ZIP}} \\
+  &= 2\{(1-p+p\exp(-\lambda\gamma^i))[\log(1-p+p\exp(-\lambda\gamma^i))-\log(1-p+p\exp(-\lambda))] + \\
+  & \lambda\gamma^i\log\gamma^i + p\lambda(1-\exp(-\lambda\gamma^i))(1-\gamma^i)\}n_{\tiny\mbox{ZIP}} \hspace{0.2in} i=0,\ldots,T.
+\end{align}
+$$
+The non-centrality parameter, $\eta$ can be appproximated using the
+percentage points of a standard Normal variate as outlined by
+@Rochon89 and shown below.
+$$
+\eta(\alpha,\beta) = (z_{1-\alpha/2}+z_{1-\beta})^2
+$$
+Substituting this expression for $\eta$ into Equation~\ref{eq:eta2zip} gives an expression for $n_{\tiny\mbox{ZIP}}$
+$$
+\begin{align}
+n_{\tiny\mbox{ZIP}} &= \eta(\alpha,\beta)/\frac{1}{T+1}\sum_{i=0}^T 2\{(1-p+p\exp(-\lambda\gamma^i))[\log(1-p+p\exp(-\lambda\gamma^i))-\\
+  & \log(1-p+p\exp(-\lambda))] + \lambda\gamma^i\log\gamma^i + p\lambda(1-\exp(-\lambda\gamma^i))(1-\gamma^i)\}
+\end{align}
+$$
+Note that when $p=1$, this expression defaults to the expression obtained for the negative binomial distribution.
+
+### Zero-Inflated Negative Binomial Density
+
+The Zero-inflated Negative Binomial (ZINb) density for the count of a
+species, $y$ and overdispersion parameter, $\phi$ can be written as a
+mixture defined by two components
+$$
+f(y;\mu,\phi,p) = \left\{ \begin{array}{ll}
+                    1-p + p(\frac{\phi}{\mu+\phi})^\phi & \mbox{if }y=0 \\
+                    p\frac{\Gamma(\phi+y)}{\Gamma(\phi)\Gamma(y+1)} (\frac{\phi}{\mu+\phi})^\phi (\frac{\mu}{\mu+\phi})^y  & \mbox{if }y>0
+                \end{array} \right.
+$$
+
+The log-likelihood for a single observation $i$ is
+$$
+l(y_i;\mu_i,\phi,p) = \left\{ \begin{array}{ll}
+                       \log(1-p + p(\frac{\phi}{\mu+\phi})^\phi) & \mbox{if }y=0 \\
+                       \log p + \log(\Gamma(\phi+y))-\log(\Gamma(\phi))-\log(\Gamma(y+1)) + \phi\log\phi - & \\
+                             \hspace{0.1in}\phi\log(\mu+\phi) + y\log\mu - y\log(\mu+\phi) & \mbox{if }y>0
+    \end{array} \right.
+$$
+The expected value of the log-likelihood of $\mu_a$, the alternative
+hypothesis of $\mu$ over $\mu_0$ is given by the ZINb density at
+$\mu_a$ times the log-likelihood at $\mu_0$.
+$$
+\begin{align}
+E_{\mu_a}[l(y;\mu_0,\phi,p)] &= \sum_{y=0}^{\infty} f(y;\mu_a,\phi,p)l(y;\mu_0,\phi,p) \\
+ &= (1-p+p(\frac{\phi}{\mu_a+\phi})^\phi)\log(1-p+p(\frac{\phi}{\mu_0+\phi})^\phi) + \\
+ &  \sum_{y=1}^{\infty}[\log p + \log \Gamma(\phi+y) - \log \Gamma(\phi) - \log\Gamma(y+1) + \\
+ &  \phi\log\phi - \phi\log(\mu_0+\phi) + y\log(\mu_0) - y\log(\mu_0+\phi)] f(y;\mu_a,\phi,p) \\
+ &= (1-p+p(\frac{\phi}{\mu_a+\phi})^\phi)\log(1-p+p(\frac{\phi}{\mu_0+\phi})^\phi) + \\
+ &  \log p\sum_{y=1}^{\infty}f(y;\mu_a,\phi,p) +\sum_{y=1}^{\infty}\log\Gamma(\phi+y)f(y;\mu_a,\phi,p) - \\
+ &  \log(\Gamma(\phi)) \sum_{y=1}^{\infty}f(y;\mu_a,\phi,p) - \sum_{y=1}^{\infty}\log(\Gamma(y+1))f(y;\mu_a,\phi,p) + \\
+\end{align}
+$$
+
+$$
+\begin{align}
+ &  \phi\log \phi \sum_{y=1}^{\infty}f(y;\mu_a,\phi,p) - \phi\log(\mu_0+\phi)\sum_{y=1}^{\infty}f(y;\mu_a,\phi,p) + \\
+ &  \log\mu_0 \sum_{y=1}^{\infty}yf(y;\mu_a,\phi,p) -\log(\mu_0+\phi)\sum_{y=1}^{\infty}yf(y;\mu_a,\phi,p)
+\end{align}
+$$
+By noting that
+$$
+\begin{align}
+\sum_{y=1}^{\infty} f(y;\mu_a,\phi,p) &= 1-f(y_0;\mu_a,\phi,p) = p(1-(\frac{\phi}{\mu_a+\phi})^\phi), \\
+\sum_{y=1}^{\infty} y f(y;\mu_a,\phi,p) &= \sum_{y=0}^{\infty} y f(y;\mu_a,\phi,p) = \mu_a, \\
+\mbox{and } \sum_{y=1}^{\infty} (log(\Gamma(\phi+y)-\Gamma(y+1)) f(y;\mu_a,\phi,p) &= K\sum_{y=1}^{\infty} f(y;\mu_a,\phi,p) \\
+  &= Kp(1-(\frac{\phi}{\mu_0+\phi})^\phi)
+\end{align}
+$$
+where $K$ represents a constant, we can collapse the above expression to the following
+$$
+\begin{align}
+E_{\mu_a}[l(y;\mu_0,\phi)] &= (1-p+p(\frac{\phi}{\mu_a+\phi})^\phi)\log(1-p+p(\frac{\phi}{\mu_0+\phi})^\phi) + \\
+ &  p(1-(\frac{\phi}{\mu_a+\phi})^\phi)\log p + Kp(1-(\frac{\phi}{\mu_a+\phi})^\phi) - \\
+ &  p(1-(\frac{\phi}{\mu_a+\phi})^\phi)\log(\Gamma(\phi))  + p(1-(\frac{\phi}{\mu_a+\phi})^\phi)\phi\log \phi  - \\
+ &  p(1-(\frac{\phi}{\mu_a+\phi})^\phi)\phi\log(\mu_0+\phi) + \mu_a\log\mu_0 - \mu_a\log(\mu_0+\phi)
+\end{align}
+$$
+The non-centrality parameter can therefore be expressed as
+$$
+\begin{align}
+\eta &= 2\{E_{\mu_a}[l(y;\mu_a,\phi,p)]-E_{\mu_a}[l(y;\mu_0,\phi,p)]\}n_{\tiny\mbox{ZINb}} \\
+  &= 2\{(1-p+p(\frac{\phi}{\mu_a+\phi})^\phi)\log(1-p+p(\frac{\phi}{\mu_0+\phi})^\phi) + \\
+ &  p(1-(\frac{\phi}{\mu_a+\phi})^\phi)\log p + Kp(1-(\frac{\phi}{\mu_a+\phi})^\phi) - \\
+ &  p(1-(\frac{\phi}{\mu_a+\phi})^\phi)\log(\Gamma(\phi))  + p(1-(\frac{\phi}{\mu_a+\phi})^\phi)\phi\log \phi  - \\
+ &  p(1-(\frac{\phi}{\mu_a+\phi})^\phi)\phi\log(\mu_0+\phi) + \mu_a\log\mu_0 - \mu_a\log(\mu_0+\phi) - \\
+ &  (1-p+p(\frac{\phi}{\mu_a+\phi})^\phi)\log(1-p+p(\frac{\phi}{\mu_0+\phi})^\phi) - \\
+ &  p(1-(\frac{\phi}{\mu_a+\phi})^\phi)\log p - Kp(1-(\frac{\phi}{\mu_a+\phi})^\phi) + \\
+ &  p(1-(\frac{\phi}{\mu_a+\phi})^\phi)\log(\Gamma(\phi))  - p(1-(\frac{\phi}{\mu_a+\phi})^\phi)\phi\log \phi  + \\
+ &  p(1-(\frac{\phi}{\mu_a+\phi})^\phi)\phi\log(\mu_0+\phi) - \mu_a\log\mu_0 + \mu_a\log(\mu_0+\phi)\}n_{\tiny\mbox{ZINb}}  \\
+\end{align}
+$$
+$$
+\begin{align}
+  &= 2\{(1-p+p(\frac{\phi}{\mu_a+\phi})^\phi)[\log(1-p+p(\frac{\phi}{\mu_a+\phi})^\phi)-\\
+ &  \log(1-p+p(\frac{\phi}{\mu_0+\phi})^\phi)] + p(1-(\frac{\phi}{\mu_a+\phi})^\phi)[\phi\log(\mu_0+\phi)-\phi\log(\mu_a+\phi)] + \\
+ &  \mu_a\log\frac{\mu_a}{\mu_0} + \mu_a\log(\frac{\mu_0+\phi}{\mu_a+\phi})  \}n_{\tiny\mbox{ZINb}}
+\end{align}
+$$
+Substituting the expression for $\mu_0$ and $\mu_a$ from
+Equation~\ref{eq:hyp2} into the above expression for $\eta$ yields:
+$$
+\begin{align}
+\eta &= 2\{(1-p+p(\frac{\phi}{\lambda\gamma^i+\phi})^\phi)[\log(1-p+p(\frac{\phi}{\lambda\gamma^i+\phi})^\phi)- \log(1-p+p(\frac{\phi}{\lambda+\phi})^\phi)] + \\
+ & p(1-(\frac{\phi}{\lambda\gamma^i+\phi})^\phi)[\phi\log(\lambda+\phi)-\phi\log(\lambda\gamma^i+\phi)] + \lambda\gamma^i\log\frac{\lambda\gamma^i}{\lambda} + \lambda\gamma^i\log(\frac{\lambda+\phi}{\lambda\gamma^i+\phi})  \}n_{\tiny\mbox{ZINb}}  \\
+ &= 2\{(1-p+p(\frac{\phi}{\lambda\gamma^i+\phi})^\phi)[\log(1-p+p(\frac{\phi}{\lambda\gamma^i+\phi})^\phi)-\log(1-p+p(\frac{\phi}{\lambda+\phi})^\phi)] + \lambda\gamma^i\log(\gamma^i) + \\
+ &  \log(\frac{\lambda+\phi}{\lambda\gamma^i+\phi})[\lambda\gamma^i+p\phi(1-(\frac{\phi}{\lambda\gamma^i+\phi})^\phi)] \}n_{\tiny\mbox{ZINb}} \hspace{0.2in}i=0,\ldots,T.
+\end{align}
+$$
+The non-centrality parameter, $\eta$ can be appproximated using the
+percentage points of a standard Normal variate as outlined by
+@Rochon89 and shown below.
+$$
+\eta(\alpha,\beta) = (z_{1-\alpha/2}+z_{1-\beta})^2
+$$
+Substituting this expression for $\eta$ into Equation~\ref{eq:eta2zinb} gives an expression for $n_{\tiny\mbox{ZINb}}$
+$$
+\begin{align}
+n_{\tiny\mbox{ZINb}} &= \eta(\alpha,\beta)/\frac{1}{T+1}\sum_{i=0}^T 2\{(1-p+p(\frac{\phi}{\lambda\gamma^i+\phi})^\phi)[\log(1-p+p(\frac{\phi}{\lambda\gamma^i+\phi})^\phi)- \\
+ &  \log(1-p+p(\frac{\phi}{\lambda+\phi})^\phi)] + \lambda\gamma^i\log(\gamma^i) + \log(\frac{\lambda+\phi}{\lambda\gamma^i+\phi})[\lambda\gamma^i+p\phi(1-(\frac{\phi}{\lambda\gamma^i+\phi})^\phi)]\}
+\end{align}
+$$
+Note that when $p=1$, this expression defaults to the expression obtained for the negative binomial distribution.
+
+
+
+### References
+
+<div id="refs"></div>
+
